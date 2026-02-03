@@ -4,6 +4,8 @@ import time
 import random
 import re
 import os
+from fastapi import Body
+
 
 
 # -------------------------
@@ -109,9 +111,15 @@ def extract_intelligence(text: str):
 
 @app.post("/webhook")
 def receive_message(
-    data: ScamMessage,
+    data: ScamMessage = Body(
+        default=ScamMessage(
+            conversation_id="auto_test",
+            message=""
+        )
+    ),
     x_api_key: str = Header(None)
 ):
+
     # -------- API KEY CHECK --------
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
