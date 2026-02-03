@@ -1,15 +1,12 @@
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Body
 from pydantic import BaseModel
 import time
 import random
 import re
 import os
-from fastapi import Body
-
-
 
 # -------------------------
-# API KEY (YOU DEFINE THIS)
+# API KEY
 # -------------------------
 
 API_KEY = os.getenv("API_KEY")
@@ -77,14 +74,6 @@ HUMAN_FILLERS = [
     " I’m worried"
 ]
 
-@app.get("/")
-def home():
-    return {
-        "message": "Agentic Scam Honeypot API is running",
-        "usage": "POST /webhook with API key"
-    }
-
-
 def agent_reply():
     time.sleep(random.uniform(1.5, 3.5))
     return " ".join([
@@ -106,7 +95,18 @@ def extract_intelligence(text: str):
     }
 
 # -------------------------
-# MAIN API ENDPOINT
+# ROOT (OPTIONAL)
+# -------------------------
+
+@app.get("/")
+def home():
+    return {
+        "message": "Agentic Scam Honeypot API is running",
+        "usage": "POST /webhook with API key"
+    }
+
+# -------------------------
+# MAIN API ENDPOINT (POST)
 # -------------------------
 
 @app.post("/webhook")
@@ -119,8 +119,7 @@ def receive_message(
     ),
     x_api_key: str = Header(None)
 ):
-
-    # -------- API KEY CHECK --------
+    # API key check
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
@@ -161,4 +160,15 @@ def receive_message(
         },
         "extracted_intelligence": session["intel"],
         "agent_reply": reply
+    }
+
+# -------------------------
+# HEALTH CHECK (GET)
+# -------------------------
+
+@app.get("/webhook")
+def webhook_health_check():
+    return {
+        "status": "ok",
+        "message": "Honeypot endpoint is live"
     }
