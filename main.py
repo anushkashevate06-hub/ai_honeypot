@@ -3,12 +3,14 @@ from pydantic import BaseModel
 import time
 import random
 import re
+import os
+
 
 # -------------------------
 # API KEY (YOU DEFINE THIS)
 # -------------------------
 
-API_KEY = "honeypot_key_2026_AVS"
+API_KEY = os.getenv("API_KEY")
 
 app = FastAPI(title="Agentic Scam Honeypot")
 
@@ -72,6 +74,14 @@ HUMAN_FILLERS = [
     " please help",
     " I’m worried"
 ]
+
+@app.get("/")
+def home():
+    return {
+        "message": "Agentic Scam Honeypot API is running",
+        "usage": "POST /webhook with API key"
+    }
+
 
 def agent_reply():
     time.sleep(random.uniform(1.5, 3.5))
